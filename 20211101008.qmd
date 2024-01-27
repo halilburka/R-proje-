@@ -1,0 +1,95 @@
+---
+title: "R Proje Ödevi"
+author: "Halil Burak Üstündağ"
+format: docx
+editor: visual
+---
+
+## Veri Hakkında bilgi
+
+İstanbul'da VDYM (Veriye Dayalı Yönetim Modeli) araştırması ile İstanbul halkının genel sosyodemografik ve sosyoekonomik profilinin, ihtiyaç ve eğilimlerinin belirlenerek yatırım ve hizmetler konusunda oluşturulacak stratejilere altlık olacak veri üretilmesi hedeflenmiştir. Bu amaçla kent genelinde 50.000 hane ile yüz yüze anket yöntemi kullanılarak görüşme gerçekleştirilmiştir. Anket sayısı her mahalleye en az 12 anket düşecek şekilde mahalle hane sayıları oranında dağıtılmıştır. Çalışma sonuçlarının İstanbul'u temsil edebilmesi için görüşme gerçekleştirilecek haneler, mahalle düzeyinde tabakalı rastgele örneklem yöntemi ile seçilmiştir.
+
+Çalıştaylar ve toplantılar ile nihai hali belirlenen anket formunun uygulandığı saha çalışması 29.11.2021 -- 07.03.2022 tarihleri arasında gerçekleştirilmiştir.
+
+verinin alındığı site: https://data.ibb.gov.tr/dataset/vdym-ilce-bazinda-hanelerdeki-haftalik-spor-yapilan-gun-sayisi
+
+### İlçe bazında hanelerde haftalık spor yapılan gün sayısı verisi
+
+Sys.setlocale("LC_CTYPE", "en_US.UTF-8") kodu R projelerinde ve skriptlerinizde, karakter kodlaması olarak genellikle UTF-8 kullanılması önerilir. Bu, birçok dil ve özel karakter için geniş bir destek sağlar.
+
+```{r}
+Sys.setlocale("LC_CTYPE", "en_US.UTF-8")
+library(readxl)
+veri <- read_excel("/Users/burakustundag/Downloads/3-vdym-ilce-baznda-hanelerdeki-haftalk-spor-yaplan-gun-says.xlsx", sheet = "D1.4.A-Devam")
+print(veri)
+
+
+```
+
+veri setimiz yukarıda görüldüğü gibidir.
+
+### Summary komutu ile verilerin özetini çıkaralım.
+
+```{r}
+summary(veri)
+```
+
+Görselde de görüldüğü gibi minimum değer 1, Q1 değeri 3, Q2(medyan)değeri 3, Q3 değeri 4, maksimum değer 6, ortalama ise 3.205 olduğu görülmüştür.
+
+### Grafik çizimi
+
+```{r}
+library(tidyverse)
+ggplot(veri, aes(x = İlçe, y = `Bir Haftada Ortalama Spor Yapma Günü`)) +
+  geom_point(position = position_jitter(width = 0.3, height = 0), size = 2, color = "green") +
+  labs(title = "İlçelerde Haftada Ortalama Spor Yapma Günü", x = "İlçeler", y = "Bir Haftada Ortalama Spor Yapma Günü") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+Veri setinin grafiği yukarıda görüldüğü gibidir. Bir haftada ortalama spor yapma günü ortalamasının frekans grafiği aşağıdaki gibi yazılır.
+
+```{r}
+ggplot(veri, aes(x = `Bir Haftada Ortalama Spor Yapma Günü`)) +
+  geom_histogram(binwidth = 1, fill = "skyblue", color = "black", alpha = 0.7) +
+  labs(title = "Haftada Ortalama Spor Yapma Günü Histogramı", x = "Bir Haftada Ortalama Spor Yapma Günü", y = "Frekans") +
+  theme_minimal()
+```
+
+### Genel analiz
+
+ Sultanbeyli haftada 6 gün spor yaparak maksimum spor yapan ilçe olmuştur.
+
+ Küçükçekmece haftada 1 gün spor yaparak minimum spor yapan ilçe olmuştur.
+
+ Veri seti normal dağılmıştır.
+
+## Veri silme
+
+Veri silme işlemi aşağıdaki gösterildiği gibi yapılmaktadır.(veri setinden silinecek veri Arnavutköy olarak belirlenmiştir.)
+
+```{r}
+library(tidyverse)
+veri$`Bir Haftada Ortalama Spor Yapma Günü`[2] <- NA
+print(veri)
+```
+
+yeni veri setimiz yukarıda görüldüğü şekildedir.
+
+## Veri doldurma
+
+Veri ekleme işleminde veri setinin ortalaması alınıp, NA değerine atanır. Bu sayede veri setinin ortalaması değişmez ve eksik veriye değer atanmış olur.
+
+```{r}
+library(tidyverse)
+veri$`Bir Haftada Ortalama Spor Yapma Günü`[is.na(veri$`Bir Haftada Ortalama Spor Yapma Günü`)] <- mean(veri$`Bir Haftada Ortalama Spor Yapma Günü`, na.rm = TRUE)
+print(veri)
+```
+
+Yeni oluşan veri setinde ortalamada herhangi bir değişiklik olmamıştır. Aşağıdaki kod ile kontrol edebiliriz.
+
+```{r}
+summary(veri)
+```
+
+Teşekkür ederim.
